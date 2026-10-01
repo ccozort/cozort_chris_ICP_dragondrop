@@ -86,13 +86,22 @@ class Player(Sprite):
         self.idle_frames = [self.spritesheet.get_image(0,0, TILESIZE,TILESIZE), self.spritesheet.get_image(32,0, TILESIZE,TILESIZE)]
     def animate(self):
         now = pg.time.get_ticks()
-        if now == self.last_update > 350:
-            self.last_update = now
-            self.current_frame = (self.current_frame + 1) % len(self.idle_frames)
-            bottom = self.rect.bottom
-            self.image = self.idle_frames[self.current_frame]
-            self.rect = self.image.get_rect()
-            self.rect.bottom = bottom
+        if not self.jumping and not self.moving:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                bottom = self.rect.bottom
+                self.image = self.standing_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+        elif self.moving:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.moving_frames)
+                bottom = self.rect.bottom
+                self.image = self.moving_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
             
     def update(self):
         self.get_keys()
