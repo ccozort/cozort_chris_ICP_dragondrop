@@ -1,0 +1,33 @@
+import pygame as pg
+
+WIDTH = 1024
+HEIGHT = 768
+TILESIZE = 32
+FPS = 30
+
+
+# COLORS
+
+WHITE = (255,255,255)
+BLUE = (50,50,255)
+GREEN = (0,255,0)
+LIGHT_GRAY  = (200, 200, 200)
+GRAY        = (128, 128, 128)
+DARK_GRAY   = (64, 64, 64)
+BLACK       = (0, 0, 0)
+RED         = (255, 0, 0)
+BLUE        = (0, 0, 255)
+YELLOW      = (255, 255, 0)
+CYAN        = (0, 255, 255)
+MAGENTA     = (255, 0, 255)
+ORANGE      = (255, 165, 0)
+LIME        = (50, 205, 50)
+AQUA        = (0, 128, 128)
+PURPLE      = (128, 0, 128)
+PINK        = (255, 192, 203)
+GOLD        = (255, 215, 0)
+
+# player settings
+PLAYER_SPEED = 300
+PLAYER_COLLISION_BUFFER = -5
+PLAYER_HIT_RECT = pg.Rect(0,0, TILESIZE+PLAYER_COLLISION_BUFFER, TILESIZE+PLAYER_COLLISION_BUFFER)
