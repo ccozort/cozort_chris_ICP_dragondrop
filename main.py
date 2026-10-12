@@ -49,7 +49,6 @@ class Game:
         self.all_mobs = pg.sprite.Group()
         # instantiate player here
         
-        self.wall = Wall(self,5,0)
         print(self.map.data)
         for row, tiles in enumerate(self.map.data):
             for col, tile in enumerate(tiles):
