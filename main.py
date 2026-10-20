@@ -40,21 +40,24 @@ class Game:
 
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
-        self.game_save_dir = path.join(self.game_dir,"highscore.txt")
+        self.game_save_file = path.join(self.game_dir,"highscore.txt")
         self.img_dir = path.join(self.game_dir, 'images')
+        ################# sound handling ####################
         self.snd_dir = path.join(self.game_dir, 'sounds')
+        self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "coin_pickup.mp3"))
+
         self.map = Map(path.join(self.game_dir, map))
 
         # want to see if file exists and create if not
         try:
-            with open(self.game_save_dir, "x", encoding="utf-8") as file:
+            with open(self.game_save_file, 'x', encoding="utf-8") as file:
                 file.write("Hello, World!")
             print("File created successfully.")
         except FileExistsError:
             print("File already exists. No action taken.")
 
         # open file and try to set high score with except set high score to zero
-        with open(self.game_save_dir, 'r') as f:
+        with open(self.game_save_file, 'r') as f:
             try:
                 self.highscore = int(f.read())
                 print('high score set')
@@ -83,7 +86,8 @@ class Game:
             for col, tile in enumerate(tiles):
                 if tile == 'P':
                     self.player = Player(self, col, row)
-
+        pg.mixer.music.load(path.join(self.snd_dir, "background_music.ogg"))
+        pg.mixer.music.play(loops=-1)
     def run(self):
         while self.running:
             # sets the delta time property and runs the tick function at FPS/1000
@@ -95,7 +99,7 @@ class Game:
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                with open(path.join(self.game_dir, self.game_save_dir), 'w') as f:
+                with open(path.join(self.game_dir, self.game_save_file), 'w') as f:
                     f.write(str(self.score))
                 if self.playing:
                     self.playing = False

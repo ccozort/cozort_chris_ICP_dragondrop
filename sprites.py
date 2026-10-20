@@ -101,6 +101,7 @@ class Player(Sprite):
         if hits:
             self.coins += 1
             self.game.score += 1
+            self.game.pickup_snd.play()
             # print(f"I have {self.coins} coins")
 
         self.hit_rect.centerx = self.pos.x
