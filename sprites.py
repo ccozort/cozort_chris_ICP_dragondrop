@@ -4,6 +4,8 @@ from settings import *
 from utils import *
 from os import path
 
+from random import randint
+
 vec = pg.math.Vector2
 
 # create player class with Sprite as super Class
@@ -92,17 +94,20 @@ class Player(Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
 
-
     def update(self):
         self.get_keys()
         self.rect.center = self.pos
         self.pos += self.vel * self.game.dt
-        hits = pg.sprite.spritecollide(self, self.game.all_coins, True)
+        hits = pg.sprite.spritecollide(self, self.game.all_coins, False)
         if hits:
             self.coins += 1
             self.game.score += 1
             self.game.pickup_snd.play()
             # print(f"I have {self.coins} coins")
+            for i in range(100):
+                Particle(self.game, hits[0].rect.x, hits[0].rect.y)
+                hits[0].kill()
+            print(str(len(self.game.all_particles)))
 
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
@@ -169,7 +174,34 @@ class Mob(Sprite):
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
-   
+
+class Particle(Sprite):
+    def __init__(self, game, x, y):
+        self.groups = game.all_sprites, game.all_particles
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((TILESIZE/4, TILESIZE/4))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.vel = vec(randint(-180,180),randint(-180,180)) 
+        self.pos = vec(x,y)
+        self.speed = 5
+        self.rect.center = self.pos
+        self.countdown = Cooldown()
+        self.countdown.event_time = floor(pg.time.get_ticks()/1000)
+        print("I created a particle")
+        print(self.rect.x)
+        print(self.rect.y)
+
+    def update(self):
+        self.countdown.ticking()
+        self.pos += self.vel * self.speed * self.game.dt
+        if self.countdown.delta > 1:
+            self.kill()
+            print(str(len(self.game.all_particles)))
+        self.rect.x = self.pos.x
+        self.rect.y = self.pos.y
+        
 class Wall(Sprite):
     def __init__(self, game, x, y):
         self.groups = game.all_sprites, game.all_walls

@@ -70,6 +70,7 @@ class Game:
         self.all_walls = pg.sprite.Group()
         self.all_mobs = pg.sprite.Group()
         self.all_coins = pg.sprite.Group()
+        self.all_particles = pg.sprite.Group()
         # instantiate player here
         
         print(self.map.data)
