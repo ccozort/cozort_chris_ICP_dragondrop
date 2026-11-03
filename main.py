@@ -19,7 +19,7 @@ FREEDOM:
 
 import pygame as pg
 from os import path
-from settings import *
+from settings import *  
 from sprites import *
 from utils import *
 

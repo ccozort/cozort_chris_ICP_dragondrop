@@ -65,16 +65,16 @@ class Player(Sprite):
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
             # self.vel.x = -PLAYER_SPEED
-            self.acc.x = -5
+            self.acc.x = -PLAYER_ACC
         if keys[pg.K_d]:
             # self.vel.x = PLAYER_SPEED
-            self.acc.x = 5
+            self.acc.x = PLAYER_ACC
         if keys[pg.K_w]:
             # self.vel.y = -PLAYER_SPEED
-            self.acc.y = -5
+            self.acc.y = -PLAYER_ACC
         if keys[pg.K_s]:
             # self.vel.y = PLAYER_SPEED
-            self.acc.y = 5
+            self.acc.y = PLAYER_ACC
         if self.vel.x != 0 and self.vel.y != 0:
             self.vel *= 0.7071
     def jump(self):
@@ -102,25 +102,40 @@ class Player(Sprite):
                 self.rect.bottom = bottom
 
     def update(self):
-        
+        self.animate()
+        self.acc = vec(0,9.8)
         self.get_keys()
+        self.acc.x += self.vel.x * self.cofric
+        self.acc.y += self.vel.y * self.cofric
+        self.vel += self.acc
+        # limit the maximum fall speed to prevent tunneling through tiles
+        # prompted ai to prevent tunneling through tiles
+        max_fall_speed = TILESIZE / max(self.game.dt, 0.001)
+        self.vel.y = min(self.vel.y, max_fall_speed)
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0
+        if abs(self.vel.y) < 0.1:
+            self.vel.y = 0
+        # update position based on velocity and acceleration
+        # used exponential calculation with game.dt to update position accurately
+        self.pos += self.vel * self.game.dt + 0.5 * self.acc * (self.game.dt ** 2)
         tile_hits = pg.sprite.spritecollide(self, self.game.all_tiles, False)
         if tile_hits:
             if tile_hits[0].variant == "ice":
                 self.cofric = -.001
             else:
                 self.cofric = -.01
-        else:
-            self.acc = vec(0,0)
+        # else:
+        #     self.acc = vec(0,0)
 
             
-        self.acc.x += self.vel.x * self.cofric
-        self.acc.y += self.vel.y * self.cofric
-        self.vel += self.acc
-        self.rect.center = self.pos
-        # self.pos += self.vel * self.game.dt
-        self.pos += self.vel * self.game.dt + 0.5 * self.acc 
+
+
+        print(self.vel)
         
+        # self.pos += self.vel * self.game.dt
+
+        self.rect.center = self.pos
         hits = pg.sprite.spritecollide(self, self.game.all_coins, False)
         if hits:
             self.coins += 1
