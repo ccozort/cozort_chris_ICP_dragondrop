@@ -19,9 +19,9 @@ def collide_with_walls(sprite, group, dir):
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
             # print("collided with wall from x dir")
-            if hits[0].rect.centerx > sprite.hit_rect.centerx:
+            if sprite.vel.x > 0:
                 sprite.pos.x = hits[0].rect.left - sprite.hit_rect.width / 2
-            if hits[0].rect.centerx < sprite.hit_rect.centerx:
+            if sprite.vel.x < 0:
                 sprite.pos.x = hits[0].rect.right + sprite.hit_rect.width / 2
             sprite.vel.x = 0
             sprite.hit_rect.centerx = sprite.pos.x
@@ -29,9 +29,9 @@ def collide_with_walls(sprite, group, dir):
         hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
         if hits:
             # print("collided with wall from y dir")
-            if hits[0].rect.centery > sprite.hit_rect.centery:
+            if sprite.vel.y > 0:
                 sprite.pos.y = hits[0].rect.top - sprite.hit_rect.height / 2
-            if hits[0].rect.centery < sprite.hit_rect.centery:
+            if sprite.vel.y < 0:
                 sprite.pos.y = hits[0].rect.bottom + sprite.hit_rect.height / 2
             sprite.vel.y = 0
             sprite.hit_rect.centery = sprite.pos.y
@@ -99,11 +99,11 @@ class Player(Sprite):
 
     def update(self):
         self.animate()
-        self.acc = vec(0,0)
+        self.acc = vec(0,2)
         self.get_keys()
-        self.acc += self.vel * self.cofric
-        # self.acc.x += self.vel.x * self.cofric
-        # self.acc.y += self.vel.y * self.cofric
+        # self.acc += self.vel * self.cofric
+        self.acc.x += self.vel.x * self.cofric
+        # self.acc.y += self.vel.y
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
@@ -118,10 +118,11 @@ class Player(Sprite):
                 self.cofric = -.001
             else:
                 self.cofric = -.01
+            print(self.cofric)
         # else:
         #     self.acc = vec(0,0)
-        print(self.vel)
-        self.rect.center = self.pos
+        # print(self.vel)
+        # self.rect.center = self.pos
         hits = pg.sprite.spritecollide(self, self.game.all_coins, False)
         if hits:
             self.coins += 1
@@ -149,7 +150,7 @@ class Mob(Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.speed = 100
+        self.speed = MOB_SPEED
         self.vel = vec(0,0)
         self.pos = vec(x,y) * TILESIZE
         self.hit_rect = MOB_HIT_RECT
@@ -191,11 +192,15 @@ class Mob(Sprite):
     def update(self):
         self.animate()
         self.follow(self.game.player)
-        self.pos += self.vel * self.speed * self.game.dt
+        self.pos += self.vel * self.speed
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, 'y')
+        # self.hit_rect.centerx = self.pos.x
+        # collide_with_walls(self, self.game.all_mobs, 'x')
+        # self.hit_rect.centery = self.pos.y
+        # collide_with_walls(self, self.game.all_mobs, 'y')
         self.rect.center = self.hit_rect.center
 
 class Particle(Sprite):
@@ -215,7 +220,9 @@ class Particle(Sprite):
         print("I created a particle")
         print(self.rect.x)
         print(self.rect.y)
-
+    def get_variant(self):
+        return 
+        pass
     def update(self):
         self.countdown.ticking()
         self.pos += self.vel * self.speed * self.game.dt
