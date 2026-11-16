@@ -99,11 +99,10 @@ class Player(Sprite):
 
     def update(self):
         self.animate()
-        self.acc = vec(0,2)
+        self.acc = vec(0,0)
         self.get_keys()
-        # self.acc += self.vel * self.cofric
         self.acc.x += self.vel.x * self.cofric
-        # self.acc.y += self.vel.y
+        self.acc.y += self.vel.y * self.cofric
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
@@ -115,14 +114,12 @@ class Player(Sprite):
         tile_hits = pg.sprite.spritecollide(self, self.game.all_tiles, False)
         if tile_hits:
             if tile_hits[0].variant == "ice":
-                self.cofric = -.001
-            else:
-                self.cofric = -.01
+                print("i hit some ice...")
+                self.cofric = 0
+        else:
+            print("i'm not hitting ice")
+            self.cofric = -.1
             print(self.cofric)
-        # else:
-        #     self.acc = vec(0,0)
-        # print(self.vel)
-        # self.rect.center = self.pos
         hits = pg.sprite.spritecollide(self, self.game.all_coins, False)
         if hits:
             self.coins += 1
@@ -140,7 +137,8 @@ class Player(Sprite):
         self.rect.center = self.hit_rect.center
 
 class Mob(Sprite):
-    def __init__(self, game, x, y):
+    # def __init__(self, game, x, y):
+    def __init__(self, game, grid_pos):
         self.groups = game.all_sprites, game.all_mobs
         Sprite.__init__(self, self.groups)
         self.game = game
@@ -152,12 +150,14 @@ class Mob(Sprite):
         self.rect.y = y
         self.speed = MOB_SPEED
         self.vel = vec(0,0)
-        self.pos = vec(x,y) * TILESIZE
+        # self.pos = vec(x,y) * TILESIZE
+        self.pos = get_pixel_center(grid_pos)
         self.hit_rect = MOB_HIT_RECT
         self.current_frame = 0
         self.last_update = 0
         self.jumping = False
         self.moving = False
+        self.path = []
         print("player instance created")
         self.load_images()
     def load_images(self):
@@ -192,6 +192,7 @@ class Mob(Sprite):
     def update(self):
         self.animate()
         self.follow(self.game.player)
+        bfs_path(self.game.map, self, self.game.player )
         self.pos += self.vel * self.speed
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
@@ -264,7 +265,7 @@ class Coin(Sprite):
         Sprite.__init__(self, self.groups)
         self.game = game
         self.image = pg.Surface((TILESIZE, TILESIZE))
-        pg.draw.circle(self.image, GOLD, (TILESIZE/2, TILESIZE/2), TILESIZE/2)
+        
         # pg.draw.ellipse(self.image, GOLD, (TILESIZE/2, TILESIZE/2), TILESIZE/2)
         self.image.set_colorkey(BLACK)
         # self.image.fill(GOLD)

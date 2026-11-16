@@ -25,7 +25,6 @@ from utils import *
 
 # the game class a blueprint for the whole game...
 class Game:
-    # 
     def __init__(self):
         pg.init()
         pg.mixer.init()
@@ -36,7 +35,6 @@ class Game:
         self.playing = True
         self.score = 0
         self.highscore = 0
-
     def load_data(self, map):
         self.game_dir = path.dirname(__file__)
         self.game_save_file = path.join(self.game_dir,"highscore.txt")
@@ -46,7 +44,7 @@ class Game:
         self.pickup_snd = pg.mixer.Sound(path.join(self.snd_dir, "coin_pickup.mp3"))
 
         self.map = Map(path.join(self.game_dir, map))
-
+        print(self.map)
         # want to see if file exists and create if not
         try:
             with open(self.game_save_file, 'x', encoding="utf-8") as file:
@@ -63,7 +61,6 @@ class Game:
             except:
                 self.highscore = 0
                 print("high score is zero")
-
     def new(self):
         self.load_data('level1.txt')
         self.all_sprites = pg.sprite.Group()
@@ -100,7 +97,6 @@ class Game:
             self.events() # this gets player input
             self.update() # this updates the game
             self.draw() # this draws sprites
-    
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -122,7 +118,6 @@ class Game:
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x,y)
         self.screen.blit(text_surface, text_rect)
-
     def draw(self):
         self.screen.fill(BLUE)
         self.all_sprites.draw(self.screen)
