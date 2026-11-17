@@ -3,6 +3,7 @@ from pygame.sprite import Sprite
 from settings import *
 from utils import *
 from os import path
+from math import *
 
 from random import randint
 
@@ -70,9 +71,26 @@ class Player(Sprite):
             self.acc.y = -PLAYER_ACC
         if keys[pg.K_s]:
             self.acc.y = PLAYER_ACC
+        if keys[pg.K_f]:
+            self.pew()
+         
         # # unsure if this code is needed
         # if self.vel.x != 0 and self.vel.y != 0:
         #     self.vel *= 0.7071
+    
+
+    def pew(self):
+        mpos = pg.mouse.get_pos()
+        print(mpos)
+        targetx = mpos[0]
+        targety = mpos[1]
+        dx = targetx - self.hit_rect.x
+        dy = targety - self.hit_rect.y
+        angle = atan2(dx, dy)
+        speed_x = 10 * sin(angle)
+        speed_y = 10 * cos(angle)
+        
+        PewPew(self.game, self.pos.x, self.pos.y, TILESIZE/4, TILESIZE/4, speed_x, speed_y)
     def jump(self):
         pass
     def load_images(self):
@@ -114,12 +132,12 @@ class Player(Sprite):
         tile_hits = pg.sprite.spritecollide(self, self.game.all_tiles, False)
         if tile_hits:
             if tile_hits[0].variant == "ice":
-                print("i hit some ice...")
+                # print("i hit some ice...")
                 self.cofric = 0
         else:
-            print("i'm not hitting ice")
+            # print("i'm not hitting ice")
             self.cofric = -.1
-            print(self.cofric)
+            # print(self.cofric)
         hits = pg.sprite.spritecollide(self, self.game.all_coins, False)
         if hits:
             self.coins += 1
@@ -129,12 +147,33 @@ class Player(Sprite):
             for i in range(100):
                 Particle(self.game, hits[0].rect.x, hits[0].rect.y)
                 hits[0].kill()
-            print(str(len(self.game.all_particles)))
+            # print(str(len(self.game.all_particles)))
         self.hit_rect.centerx = self.pos.x
         collide_with_walls(self, self.game.all_walls, 'x')
         self.hit_rect.centery = self.pos.y
         collide_with_walls(self, self.game.all_walls, 'y')
         self.rect.center = self.hit_rect.center
+
+class PewPew(Sprite):
+    def __init__(self, game, x, y, w, h, sx, sy):
+        self.groups = game.all_sprites, game.all_pews
+        Sprite.__init__(self, self.groups)
+        self.game = game
+        self.image = pg.Surface((w,h))
+        self.image.set_colorkey(BLACK)
+        self.rect = self.image.get_rect()
+        self.radius = TILESIZE/4
+        pg.draw.circle(self.image, YELLOW, self.rect.center, self.radius)
+        self.rect.x = x
+        self.rect.y = y
+        self.speed_x = sx
+        self.speed_y = sy
+        self.fired = False
+    def update(self):
+        self.rect.x += self.speed_x
+        self.rect.y += self.speed_y
+        if self.rect.y < 0 or self.rect.y > HEIGHT:
+            self.kill()
 
 class Mob(Sprite):
     # def __init__(self, game, x, y):
@@ -218,9 +257,9 @@ class Particle(Sprite):
         self.rect.center = self.pos
         self.countdown = Cooldown()
         self.countdown.event_time = floor(pg.time.get_ticks()/1000)
-        print("I created a particle")
-        print(self.rect.x)
-        print(self.rect.y)
+        # print("I created a particle")
+        # print(self.rect.x)
+        # print(self.rect.y)
     def get_variant(self):
         return 
         pass
@@ -229,7 +268,7 @@ class Particle(Sprite):
         self.pos += self.vel * self.speed * self.game.dt
         if self.countdown.delta > 1:
             self.kill()
-            print(str(len(self.game.all_particles)))
+            # print(str(len(self.game.all_particles)))
         self.rect.x = self.pos.x
         self.rect.y = self.pos.y
         
